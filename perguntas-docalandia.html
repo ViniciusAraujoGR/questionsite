@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perguntas da Docalandia</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #2563EB;
+    --blue-light: #DBEAFE;
+    --yellow: #F59E0B;
+    --yellow-light: #FEF3C7;
+    --red: #EF4444;
+    --red-light: #FEE2E2;
+    --green: #16A34A;
+    --green-light: #DCFCE7;
+    --bg: #FFFBF0;
+    --text: #1E1B18;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 40px;
+    overflow-x: hidden;
+  }
+
+  header {
+    width: 100%;
+    text-align: center;
+    padding: 28px 20px 20px;
+    background: linear-gradient(135deg, var(--blue) 0%, #1D4ED8 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 100px; height: 100px;
+    background: var(--yellow);
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -15px;
+    width: 80px; height: 80px;
+    background: var(--red);
+    border-radius: 50%;
+    opacity: 0.25;
+  }
+
+  .site-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(26px, 8vw, 38px);
+    color: #fff;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+    line-height: 1.1;
+  }
+
+  .site-subtitle {
+    color: rgba(255,255,255,0.8);
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dots-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .main {
+    width: 100%;
+    max-width: 420px;
+    padding: 24px 18px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    background: #fff;
+    border: 2px solid #E5E7EB;
+    border-radius: 999px;
+    padding: 8px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    width: 100%;
+  }
+  .score-pill {
+    background: var(--blue);
+    color: #fff;
+    border-radius: 999px;
+    padding: 2px 11px;
+    font-size: 13px;
+  }
+
+  .topic-badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 7px 22px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .card {
+    width: 100%;
+    background: #fff;
+    border-radius: 22px;
+    padding: 28px 22px 22px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border: 3px solid transparent;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-number {
+    position: absolute;
+    top: 16px; right: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 42px;
+    opacity: 0.08;
+    line-height: 1;
+  }
+
+  .card-question {
+    font-size: clamp(18px, 5vw, 22px);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.4;
+    position: relative;
+    z-index: 1;
+    min-height: 80px;
+  }
+
+  .card-question.animating {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .card-question.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.4s 0.1s, transform 0.4s 0.1s;
+  }
+
+  .btn-next {
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    padding: 17px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+    position: relative;
+    top: 0;
+  }
+  .btn-next:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.18);
+  }
+
+  .btn-restart {
+    background: #fff;
+    border: 3px solid var(--text);
+    color: var(--text);
+    border-radius: 16px;
+    padding: 13px;
+    width: 100%;
+    font-family: 'Fredoka One', cursive;
+    font-size: 17px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+  }
+  .btn-restart:active { background: #F3F4F6; }
+
+  .topics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .topic-card {
+    border-radius: 14px;
+    padding: 14px 12px;
+    font-weight: 800;
+    font-size: 12px;
+    text-align: center;
+    letter-spacing: 0.3px;
+    line-height: 1.3;
+    opacity: 0.45;
+    transition: opacity 0.3s;
+  }
+  .topic-card.active { opacity: 1; }
+  .topic-card.done { opacity: 0.2; text-decoration: line-through; }
+
+  .finished-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+  .finished-emoji {
+    font-size: 64px;
+    line-height: 1;
+  }
+  .finished-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 28px;
+    color: var(--text);
+  }
+  .finished-sub {
+    font-size: 15px;
+    color: #6B7280;
+    font-weight: 600;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+
+  .progress-wrap {
+    width: 100%;
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">💬 Perguntas da Docalandia</div>
+  <div class="site-subtitle">Converse. Conecte. Descubra.</div>
+  <div class="dots-row">
+    <div class="dot" style="background:#F59E0B"></div>
+    <div class="dot" style="background:#EF4444"></div>
+    <div class="dot" style="background:#fff"></div>
+    <div class="dot" style="background:#16A34A"></div>
+    <div class="dot" style="background:#F59E0B"></div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="score-bar">
+    <span>Perguntas respondidas:</span>
+    <span class="score-pill" id="score">0</span>
+    <span>de</span>
+    <span class="score-pill" id="total">—</span>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress" style="width:0%"></div>
+  </div>
+
+  <div id="game-screen" style="width:100%;display:flex;flex-direction:column;gap:16px;align-items:center">
+    <span class="topic-badge" id="topic-badge">—</span>
+
+    <div class="card" id="card">
+      <div class="card-number" id="card-number">1</div>
+      <div class="card-question animating" id="question-text">Toque no botão para começar! 🎉</div>
+    </div>
+
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Próxima pergunta ✨</button>
+    <button class="btn-restart" onclick="restart()">🔄 Recomeçar tudo</button>
+  </div>
+
+  <div class="finished-screen" id="finished-screen">
+    <div class="finished-emoji">🎊</div>
+    <div class="finished-title">Todas respondidas!</div>
+    <div class="finished-sub">Vocês conversaram sobre tudo! Isso é muito especial. 💛</div>
+    <button class="btn-next" style="background:var(--green)" onclick="restart()">Jogar de novo! 🔄</button>
+  </div>
+
+  <div>
+    <div style="font-family:'Fredoka One',cursive;font-size:14px;color:#9CA3AF;text-align:center;margin-bottom:10px;letter-spacing:1px;">TÓPICOS</div>
+    <div class="topics-grid" id="topics-grid"></div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  "Amor e conexão emocional": [
+    "Quando você percebeu que estava se apaixonando por mim?",
+    "Qual momento nosso mais parece cena de filme?",
+    "O que eu faço que mais te faz sentir amado(a)?",
+    "Qual detalhe meu você acha irresistível?",
+    "Quando você sente que estamos mais conectados?",
+    "Qual memória nossa você nunca quer esquecer?",
+    "O que você mais admira em mim?",
+    "Qual foi o momento em que mais sentiu orgulho de mim?",
+    "O que você acha que fazemos melhor que outros casais?",
+    "Qual foi a maior prova de amor que já te dei?",
+    "Qual música lembra nós dois imediatamente?",
+    "Qual hábito meu te faz sorrir sem perceber?",
+    "O que em mim te transmite paz?",
+    "Qual foi a conversa mais importante que tivemos?",
+    "O que você sente falta quando estamos longe?",
+    "Qual versão minha você mais ama?",
+    "Quando você mais sentiu segurança comigo?",
+    "Qual parte do nosso relacionamento parece mais especial?",
+    "O que você acha que eu ainda não percebi sobre mim?",
+    "O que você diria sobre nós para nossos filhos?"
+  ],
+  "Segredos e vulnerabilidade": [
+    "O que você pensa sobre mim mas nunca me contou?",
+    "Qual medo você esconde melhor?",
+    "Existe algo que você sente dificuldade em admitir para mim?",
+    "Qual insegurança sua você acha que eu não percebo?",
+    "O que você gostaria que eu entendesse sem precisar explicar?",
+    "Qual verdade sobre nós é mais difícil dizer em voz alta?",
+    "Qual foi a vez que você mais teve medo de me perder?",
+    "O que você acha que eu faço sem perceber que machuca?",
+    "Tem alguma coisa que você sente ciúmes mas nunca admitiu?",
+    "Qual foi o silêncio mais marcante entre nós?",
+    "O que você sente que ainda esconde de mim?",
+    "Qual parte de você você mais teme mostrar?",
+    "Existe algo que você queria ouvir de mim?",
+    "Qual assunto você evita comigo por medo da reação?",
+    "O que você acha que eu entenderia errado sobre você?",
+    "Qual foi sua maior dúvida sobre nós?",
+    "Qual lado seu quase ninguém conhece?",
+    "Qual momento te deixou emocionalmente mais vulnerável comigo?",
+    "O que você acha que ainda precisamos conversar?",
+    "Existe alguma mágoa pequena que nunca comentou?"
+  ],
+  "Rotina e convivência": [
+    "Qual hábito meu você acha mais fofo?",
+    "Qual mania minha mais te irrita?",
+    "O que na nossa rotina você mais gosta?",
+    "Qual momento simples virou lembrança especial?",
+    "O que você acha engraçado em mim sem eu perceber?",
+    "Qual parte da sua rotina não imagina mais sem mim?",
+    "Qual coisa bagunçada minha você acha adorável?",
+    "Qual costume nosso você nunca quer perder?",
+    "Em qual situação você acha que combinamos perfeitamente?",
+    "Qual hábito meu você tentaria mudar se pudesse?",
+    "O que fazemos juntos que sempre melhora seu dia?",
+    "Qual mania minha mais te surpreendeu no começo?",
+    "Qual momento cotidiano mais parece 'casa' para você?",
+    "O que você acha que fazemos bem morando juntos?",
+    "Qual coisa pequena entre nós vale muito para você?",
+    "Em qual situação eu mais demonstro carinho sem perceber?",
+    "Qual rotina nossa te dá sensação de estabilidade?",
+    "O que mais te faz rir em mim no dia a dia?",
+    "Qual hábito seu você acha que eu mais gosto?",
+    "O que você acha que só nós entendemos na convivência?"
+  ],
+  "Futuro e sonhos": [
+    "Como você imagina nossa vida em 10 anos?",
+    "Que tipo de casa você sonha ter comigo?",
+    "Qual viagem você acha que deveríamos fazer juntos?",
+    "Onde você imagina envelhecendo comigo?",
+    "Qual sonho pessoal você quer viver ao meu lado?",
+    "O que você espera que nunca mude entre nós?",
+    "Como você imagina nossos finais de semana no futuro?",
+    "Qual conquista nossa você mais quer viver?",
+    "O que você acha que ainda vamos superar juntos?",
+    "Qual seria nossa vida ideal?",
+    "Qual cidade você imagina morarmos?",
+    "O que você mais quer construir comigo?",
+    "Qual tradição você gostaria que criássemos?",
+    "Como você imagina nosso primeiro lar?",
+    "O que você acha que vamos rir lembrando no futuro?",
+    "Qual sonho financeiro você gostaria de alcançar comigo?",
+    "Como você imagina nossas vidas depois de velhos?",
+    "O que você mais espera da nossa história?",
+    "Qual seria o maior símbolo de sucesso para nós?",
+    "O que faria você olhar para trás e pensar 'valeu a pena'?"
+  ],
+  "Filhos e família": [
+    "Você acha que seria mais rígido(a) ou mais tranquilo(a) como pai/mãe?",
+    "Qual valor faria questão de ensinar aos nossos filhos?",
+    "Qual traço meu gostaria que nossos filhos herdassem?",
+    "Como imagina nossa rotina em família?",
+    "Qual maior medo você teria na criação dos filhos?",
+    "Como gostaria de educar emocionalmente nossos filhos?",
+    "Qual lembrança de infância você gostaria de repetir com eles?",
+    "O que você nunca faria como pai/mãe?",
+    "Como imagina o primeiro dia de escola deles?",
+    "Qual parte da criação você acha mais difícil?",
+    "O que acha essencial numa família saudável?",
+    "Como imagina nossas noites em família?",
+    "Qual ensinamento da sua família levaria adiante?",
+    "Qual erro da sua criação você evitaria repetir?",
+    "Como gostaria que nossos filhos lembrassem da gente?",
+    "O que você acha que eu faria bem como pai/mãe?",
+    "Qual tradição familiar gostaria de criar?",
+    "Você acha importante demonstrar afeto na frente dos filhos?",
+    "Como lidaria se um filho pensasse muito diferente de você?",
+    "Qual momento em família você mais sonha viver?"
+  ],
+  "Momentos difíceis": [
+    "Como você acha que reagiria se um de nós enfrentasse um grande luto?",
+    "O que acha mais importante num relacionamento durante tempos difíceis?",
+    "Você acha que sabe pedir ajuda emocionalmente?",
+    "Como gostaria de ser cuidado(a) num momento de dor?",
+    "Qual foi a fase mais difícil da sua vida?",
+    "O que você acha que nos manteria unidos numa crise?",
+    "Como você lida com medo de perder alguém?",
+    "O que mais te assusta sobre o futuro?",
+    "Você acha que o amor muda durante dificuldades?",
+    "Como imagina que enfrentaríamos problemas financeiros?",
+    "O que faria você sentir segurança numa crise?",
+    "Como gostaria que eu estivesse ao seu lado em tempos ruins?",
+    "O que você acha que nunca devemos fazer brigados?",
+    "Qual tipo de problema mais te preocupa em relacionamentos?",
+    "Como você reage quando sente que está perdendo controle da vida?",
+    "Você acha que conseguimos conversar bem em momentos tensos?",
+    "O que mais teme perder na vida?",
+    "Como você acha que eu demonstro força emocional?",
+    "Qual situação acha que mais testaria nosso relacionamento?",
+    "O que você acredita que faria nosso amor sobreviver às fases difíceis?"
+  ],
+  "Finanças e lar": [
+    "Como você imagina dividindo tarefas da casa comigo?",
+    "Qual seu maior medo financeiro em um relacionamento?",
+    "Você prefere guardar dinheiro ou aproveitar mais o presente?",
+    "O que significa estabilidade para você?",
+    "Como você imagina administrando dinheiro juntos?",
+    "Qual compra seria um sonho realizar comigo?",
+    "Você acha importante dividir tudo igualmente financeiramente?",
+    "Como reagiria se um de nós perdesse o emprego?",
+    "Qual hábito financeiro você acha essencial num casal?",
+    "O que faria você sentir que temos um 'lar'?",
+    "Qual parte de morar junto você acha mais difícil?",
+    "Como imagina decorando nossa casa?",
+    "Qual ambiente da casa acha que mais usaríamos juntos?",
+    "O que nunca gostaria que faltasse em nosso lar?",
+    "Você acha importante ter metas financeiras juntos?",
+    "Qual sonho material você gostaria de conquistar comigo?",
+    "Como você imagina nossa rotina financeira ideal?",
+    "O que te faria sentir orgulho da nossa vida construída?",
+    "Qual seria seu maior medo ao morar junto?",
+    "O que você acredita ser mais importante: conforto, estabilidade ou liberdade?"
+  ]
+};
+
+const COLORS = [
+  { bg: '#2563EB', light: '#DBEAFE', text: '#1E40AF', btn: '#1D4ED8', progress: '#2563EB' },
+  { bg: '#F59E0B', light: '#FEF3C7', text: '#92400E', btn: '#D97706', progress: '#F59E0B' },
+  { bg: '#EF4444', light: '#FEE2E2', text: '#991B1B', btn: '#DC2626', progress: '#EF4444' },
+  { bg: '#16A34A', light: '#DCFCE7', text: '#14532D', btn: '#15803D', progress: '#16A34A' },
+  { bg: '#7C3AED', light: '#EDE9FE', text: '#4C1D95', btn: '#6D28D9', progress: '#7C3AED' },
+  { bg: '#0891B2', light: '#CFFAFE', text: '#164E63', btn: '#0E7490', progress: '#0891B2' },
+  { bg: '#DB2777', light: '#FCE7F3', text: '#831843', btn: '#BE185D', progress: '#DB2777' },
+];
+
+const topics = Object.keys(DATA);
+let state = {};
+
+function buildState() {
+  const pool = [];
+  topics.forEach(topic => {
+    DATA[topic].forEach(q => pool.push({ topic, q }));
+  });
+  shuffle(pool);
+  return { pool, idx: 0, current: null, colorIdx: 0 };
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function getTopicColor(topic) {
+  const idx = topics.indexOf(topic) % COLORS.length;
+  return COLORS[idx];
+}
+
+function buildTopicsGrid() {
+  const grid = document.getElementById('topics-grid');
+  grid.innerHTML = '';
+  topics.forEach((topic, i) => {
+    const c = COLORS[i % COLORS.length];
+    const el = document.createElement('div');
+    el.className = 'topic-card';
+    el.id = 'tc-' + i;
+    el.style.background = c.light;
+    el.style.color = c.text;
+    el.style.border = '2px solid ' + c.bg;
+    el.textContent = topic;
+    grid.appendChild(el);
+  });
+}
+
+function updateTopicsGrid() {
+  const answered = {};
+  for (let i = 0; i < state.idx; i++) answered[state.pool[i].topic] = true;
+  topics.forEach((topic, i) => {
+    const el = document.getElementById('tc-' + i);
+    if (!el) return;
+    if (state.current && state.current.topic === topic) {
+      el.className = 'topic-card active';
+    } else if (answered[topic]) {
+      el.className = 'topic-card done';
+    } else {
+      el.className = 'topic-card';
+    }
+  });
+}
+
+function nextQuestion() {
+  if (state.idx >= state.pool.length) {
+    showFinished();
+    return;
+  }
+
+  const item = state.pool[state.idx];
+  state.current = item;
+  state.idx++;
+
+  const color = getTopicColor(item.topic);
+  const qEl = document.getElementById('question-text');
+  const card = document.getElementById('card');
+  const badge = document.getElementById('topic-badge');
+  const btn = document.getElementById('btn-next');
+  const progress = document.getElementById('progress');
+
+  qEl.className = 'card-question animating';
+
+  setTimeout(() => {
+    document.getElementById('card-number').textContent = state.idx;
+    qEl.textContent = item.q;
+    badge.textContent = '✦ ' + item.topic;
+    badge.style.background = color.light;
+    badge.style.color = color.text;
+    badge.style.border = '2px solid ' + color.bg;
+    card.style.borderColor = color.bg;
+    card.style.background = '#fff';
+    btn.style.background = color.btn;
+    progress.style.background = color.progress;
+
+    const pct = (state.idx / state.pool.length) * 100;
+    progress.style.width = pct + '%';
+    document.getElementById('score').textContent = state.idx;
+
+    qEl.className = 'card-question visible';
+    updateTopicsGrid();
+  }, 200);
+
+  if (state.idx >= state.pool.length) {
+    document.getElementById('btn-next').textContent = '🎉 Ver resultado';
+  } else {
+    document.getElementById('btn-next').textContent = 'Próxima pergunta ✨';
+  }
+}
+
+function showFinished() {
+  document.getElementById('game-screen').style.display = 'none';
+  const fin = document.getElementById('finished-screen');
+  fin.style.display = 'flex';
+}
+
+function restart() {
+  state = buildState();
+  document.getElementById('score').textContent = '0';
+  document.getElementById('total').textContent = state.pool.length;
+  document.getElementById('finished-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'flex';
+  document.getElementById('progress').style.width = '0%';
+  document.getElementById('card').style.borderColor = 'transparent';
+  document.getElementById('question-text').className = 'card-question visible';
+  document.getElementById('question-text').textContent = 'Toque no botão para começar! 🎉';
+  document.getElementById('topic-badge').textContent = '—';
+  document.getElementById('btn-next').textContent = 'Próxima pergunta ✨';
+  document.getElementById('btn-next').style.background = '#2563EB';
+  document.getElementById('card-number').textContent = '1';
+  updateTopicsGrid();
+}
+
+function init() {
+  const total = Object.values(DATA).reduce((s, arr) => s + arr.length, 0);
+  document.getElementById('total').textContent = total;
+  buildTopicsGrid();
+  state = buildState();
+  updateTopicsGrid();
+}
+
+init();
+</script>
+</body>
+</html>
